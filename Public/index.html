@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mizo Chess Online</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; text-align: center; background: #312e2b; color: white; margin: 0; padding: 20px; }
+    #board { width: 360px; margin: 20px auto; }
+.row { display: flex; }
+.square { width: 45px; height: 45px; font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.white { background: #f0d9b5; }.black { background: #b58863; }
+.selected { background: #829769!important; }
+    button { padding: 12px 24px; margin: 5px; font-size: 16px; background: #7fa650; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    input { padding: 10px; font-size: 16px; width: 200px; }
+    #status { font-size: 18px; margin: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Mizo Chess Online ♟️</h1>
+  <div id="menu">
+    <button onclick="createRoom()">Room Siam</button><br><br>
+    <input id="roomInput" placeholder="Room Code">
+    <button onclick="joinRoom()">Room Zawm</button>
+  </div>
+  <div id="game" style="display:none">
+    <div id="status">Game tan dawn</div>
+    <div id="board"></div>
+    <p>Room Code: <b id="roomCode"></b></p>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let gameState, playerColor, roomId, selectedSquare = null;
+    const pieces = { 'r':'♜','n':'♞','b':'♝','q':'♛','k':'♚','p':'♟','R':'♖','N':'♘','B':'♗','Q':'♕','K':'♔','P':'♙' };
+    function createRoom() { socket.emit('createRoom'); }
+    function joinRoom() {
+      const code = document.getElementById('roomInput').value.toUpperCase();
+      if(code) socket.emit('joinRoom', code);
+    }
+    socket.on('roomCreated', (code) => {
+      roomId = code;
+      document.getElementById('roomCode').textContent = code;
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      document.getElementById('status').textContent = 'I thian lo lut tur nghak rawh...';
+    });
+    socket.on('playerColor', (color) => { playerColor = color; });
+    socket.on('startGame', () => { document.getElementById('status').textContent = 'Game tan e! I rawng: ' + playerColor; });
+    socket.on('updateBoard', (fen) => { gameState = fen; drawBoard(); });
+    socket.on('roomError', (msg) => alert(msg));
+    socket.on('gameOver', (result) => { document.getElementById('status').textContent = 'Game Over: ' + result; });
+    function drawBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+      const rows = gameState.split(' ')[0].split('/');
+      const isWhite = playerColor === 'white';
+      for(let i = 0; i < 8; i++) {
+        const row = document.createElement('div');
+        row.className = 'row';
+        const rowIdx = isWhite? i : 7-i;
+        let colIdx = 0;
+        for(let char of rows[rowIdx]) {
+          if(isNaN(char)) {
+            const sq = document.createElement('div');
+            const file = isWhite? colIdx : 7-colIdx;
+            const rank = isWhite? 7-rowIdx : rowIdx;
+            sq.className = `square ${(rowIdx+colIdx)%2===0? 'white':'black'}`;
+            sq.textContent = pieces || '';
+            sq.dataset.square = 'abcdefgh' + (rank+1);
+            sq.onclick = () => handleClick(sq.dataset.square);
+            row.appendChild(sq);
+            colIdx++;
+          } else {
+            for(let j = 0; j < parseInt(char); j++) {
+              const sq = document.createElement('div');
+              const file = isWhite? colIdx : 7-colIdx;
+              const rank = isWhite? 7-rowIdx : rowIdx;
+              sq.className = `square ${(rowIdx+colIdx)%2===0? 'white':'black'}`;
+              sq.dataset.square = 'abcdefgh' + (rank+1);
+              sq.onclick = () => handleClick(sq.dataset.square);
+              row.appendChild(sq);
+              colIdx++;
+            }
+          }
+        }
+        boardEl.appendChild(row);
+      }
+    }
+    function handleClick(square) {
+      const turn = gameState.split(' ')[1];
+      if((turn==='w'&&playerColor!=='white')||(turn==='b'&&playerColor!=='black')) return;
+      if(selectedSquare) {
+        socket.emit('move', { roomId, from: selectedSquare, to: square });
+        selectedSquare = null;
+        document.querySelectorAll('.selected').forEach(el=>el.classList.remove('selected'));
+      } else {
+        selectedSquare = square;
+        document.querySelector(`[data-square="${square}"]`).classList.add('selected');
+      }
+    }
+  </script>
+</body>
+  </html>

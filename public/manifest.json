@@ -1,6 +1,7 @@
+a
 {
   "name": "MizoChess - Mizo Chess Game",
-  "short_name": "MizoChess", 
+  "short_name": "MizoChess",
   "description": "Mizo tawnga chess online khelhna. Thian te nen inkhel rawh.",
   "start_url": "/",
   "display": "standalone",
@@ -9,5 +10,12 @@
   "theme_color": "#16a34a",
   "categories": ["games", "entertainment"],
   "screenshots": [],
-  "icons": []
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

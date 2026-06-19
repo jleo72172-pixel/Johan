@@ -1,24 +1,24 @@
 {
-  "name": "Mizo Chess Online",
+  "name": "MizoChess - Mizo Chess Game",
   "short_name": "MizoChess",
-  "description": "Mizo tawnga chess online khelhna. I thian te nen lo inkhel rawh.",
+  "description": "Mizo tawnga chess online khelhna. Thian te nen inkhel rawh. Offline pawn a khelh theih.",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "background_color": "#1e293b",
-  "theme_color": "#0d9488",
-  "dir": "ltr",
-  "lang": "en",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "categories": ["games", "entertainment"],
+  "screenshots": [],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png", 
-      "sizes": "512x512",
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512", 
       "type": "image/png",
       "purpose": "any maskable"
     }
